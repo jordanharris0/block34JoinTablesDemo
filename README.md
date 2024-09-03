@@ -10,7 +10,7 @@ This activity guides you through building a simple CRUD API using Prisma and Exp
 
 ## Database Schema
 
-![database schema described by DBML below](database_schema.svg)
+<img src="database_schema.svg" alt="schema" width="400"/>
 
 ## Instructions
 
