@@ -2,8 +2,6 @@
 
 This activity guides you through building a simple CRUD API using Prisma and Express. It requires a basic understanding of relational database schemas, how to translate them into the equivalent [Prisma schemas](https://www.prisma.io/docs/concepts/components/prisma-schema), and how to [perform CRUD operations with Prisma Client](https://www.prisma.io/docs/concepts/components/prisma-client/crud).
 
-The **solution** branch contains documented solution code. The commit history of that branch follows the instructions below.
-
 ## Overview
 
 1. Define Prisma schema according to the provided database schema.
@@ -14,44 +12,24 @@ The **solution** branch contains documented solution code. The commit history of
 
 ![database schema described by DBML below](database_schema.svg)
 
-<details>
-<summary>Expand to see DBML</summary>
-
-```dbml
-Table Author {
-  id Serial [pk]
-  name String
-}
-
-Table Book {
-  id Serial [pk]
-  title String
-  authorId Int
-}
-
-Ref: "Book"."authorId" > "Author"."id"
-```
-
-</details>
-
 ## Instructions
 
 ### Initialize the Database
 
 1. Fork and clone this repo. Work in your local repository!
-1. Create a new Postgres database `prisma_intro_db`
+1. Create a new Postgres database `acme_travel_db`
 1. Install the Prisma CLI.\
    `npm install prisma --save-dev`
 1. Initialize Prisma to use postgresql.\
    `npx prisma init --datasource-provider postgresql`
-1. In the generated `.env` file, set `DATABASE_URL` to `"postgresql://USER:@localhost:5432/prisma_intro_db"`
+1. In the generated `.env` file, set `DATABASE_URL` to `"postgresql://USER:@localhost:5432/acme_travel_db"`
 
    - USER is the name of your database user, e.g. janedoe
 
 1. Add models to your `schema.prisma` file according to the database schema above.
 1. Create and run the initial migration.\
    `npx prisma migrate dev --name init`
-1. Explore the created database. You should see two empty models: `Author` and `Book`.\
+1. Explore the created database. You should see three empty models: `User`, `Place` and `Vacation`.\
    `npx prisma studio`
 1. If you made a mistake in your `schema.prisma`, instead of running another migration, you can instead use [`db push`](https://www.prisma.io/docs/guides/migrate/prototyping-schema-db-push) to sync your database with the schema. This is useful while _prototyping_.\
    `npx prisma db push`
@@ -66,11 +44,15 @@ Ref: "Book"."authorId" > "Author"."id"
    const prisma = new PrismaClient();
    module.exports = prisma;
    ```
-1. In `prisma/seed.js`, seed 20 authors into the database. Each author should have 3 corresponding books. Refer to [the docs on how to create related records](https://www.prisma.io/docs/concepts/components/prisma-client/relation-queries#create-a-related-record).
+1. In `prisma/seed.js`, seed at least 4 users and 3 places into the database. Also seed at least 3 vacations. Refer to [the docs on how to create related records](https://www.prisma.io/docs/concepts/components/prisma-client/relation-queries#create-a-related-record).
+   - a vacation belongs to a user
+   - a vacation belongs to a place
+   - a user can have many vacations
+   - a place can be visited on vacation many times.
    ```js
    const prisma = require("../prisma");
    const seed = async () => {
-     // TODO: Create 20 authors with 3 books each
+     // TODO: Create Users, Places and Vacations
    };
    seed()
      .then(async () => await prisma.$disconnect())
@@ -94,20 +76,10 @@ Ref: "Book"."authorId" > "Author"."id"
 
 ### Serve the Data with Express
 
-1. Install Express and create a server with two main routers: `/authors` and `/books`.
-1. Create the following `/authors` routes. These routes should use the [Prisma Client CRUD operations](https://www.prisma.io/docs/concepts/components/prisma-client/crud) to read and write from the database.
-   - `GET /authors` - returns an array of all authors
-   - `POST /authors` - creates a new author with the information provided in the request body
-   - `GET /authors/:id` - returns a single author with the specified id
-   - `PUT /authors/:id` - overwrites the author with the information provided in the request body
-   - `DELETE /authors/:id` - deletes the author with the specified id
-1. Add the following `/authors` routes; these routes handle the relationship between authors and books.
-   - `GET /authors/:id/books` - get all books written by the specified author
-   - `POST /authors/:id/books` - creates a new book as provided in the request body with the specified author
-1. Create the following `/books` routes.
-   - `GET /books` - returns an array of all books
-   - `GET /books/:id` - returns a single book with the specified id
-   - `PUT /books/:id` - overwrites the book with the information provided in the request body
-   - `DELETE /books/:id` - deletes the book with the specified id
-
-You now have a fully working CRUD API!
+1. Install Express and create a server.
+1. Create the following routes. These routes should use the [Prisma Client CRUD operations](https://www.prisma.io/docs/concepts/components/prisma-client/crud) to read and write from the database.
+   - `GET /api/users` - returns an array of all users
+   - `GET /api/places` - returns an array of all places
+   - `GET /api/vacations` - returns an array of all vacations.
+   - `POST /api/users/:userId/vacations` - has an object containing a valid placeId and travelDate as the payload, and returns the created vacation with a status code of 201.
+   - `DELETE /api/users/:userId/vacations/:id` - in the URL, gets passed the id of the vacation to delete and the userId, and returns nothing with a status code of 204.
