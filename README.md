@@ -74,7 +74,7 @@ This activity guides you through building a simple CRUD API using Prisma and Exp
 1. Use Prisma Migrate to completely reset and seed the database.\
    `npx prisma migrate reset`
    - Note: this is designed to be used in _development_ only! Another option is `npx prisma db seed`, but that will not clear existing data. `reset` is simpler to use (for now).
-1. Confirm that the database is correctly seeded with authors and books.\
+1. Confirm that the database is correctly seeded.\
    `npx prisma studio`
 
 ### Serve the Data with Express
